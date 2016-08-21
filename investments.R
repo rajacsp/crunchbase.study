@@ -35,7 +35,8 @@ country <- df[,10]
 ggplot() + aes(country) + geom_bar(fill=c1, color=c1) + coord_flip() + labs(title='Where the investors are located by Country') + ggsave(file = "investors_by_country.png")
 amounts <- as.numeric(df[,18])
 ggplot() + aes(amounts) + geom_density(fill=c1, color=c1) + labs(title='Amounts Raised') + ggsave(file = "amounts_raised_density.png")
-# Model the data
+
+# Model the data (in SVM)
 # Make ranges
 df_len <- length(df[,1])
 min <- 1
@@ -59,6 +60,19 @@ print(error)
 # Predict Future
 future_dates <- X[1]
 future_dates <- seq.Date( future_dates, length=length(X) * 2, by='1 day' )
-print(last_date)
 # Plot Data
 ggplot() + geom_point(aes(color = 'Predicted Data', x = future_dates, y = c(Y, pred) )) + geom_smooth(aes(x = future_dates, y = c(Y, pred)  )) + labs(title='SVM Forecasts') + ggsave(file = "SVM_Forceast.png")
+
+# Model the data (in KKNN)
+t1 <- df[,17][min:max]
+t2 <- df[,18][min:max]
+trainFrame <- data.frame(t1, t2)
+t3 <- df[,17][train_min:train_max]
+t4 <- df[,18][train_min:train_max]
+testFrame <- data.frame(t3,t4)
+model2 <- kknn(Y ~ X, train=trainFrame, test=testFrame, k=2, distance=0.5)
+pred2 <- predict(model2)
+# Plot Data
+ggplot() + geom_point(aes(color='Original Data', x = X, y = Y)) + geom_point(aes(color = 'Predicted Data', x = X, y = pred2)) + geom_smooth(aes(x = X, y = pred2)) + labs(title='K nearest Neighbours of Amounts Raised') + ggsave(file = "KNN_Fitted.png")
+
+
